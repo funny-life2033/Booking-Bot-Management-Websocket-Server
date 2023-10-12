@@ -22,6 +22,6 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-server.listen(80, "0.0.0.0", () => {
-  console.log("Listening to port 8080");
+server.listen(3000, "0.0.0.0", () => {
+  console.log("Listening to port 3000");
 });
