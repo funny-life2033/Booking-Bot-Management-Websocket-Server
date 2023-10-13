@@ -7,6 +7,7 @@ const server = http.createServer(app);
 
 const WebSocketServer = new WebSocket.Server({ server });
 
+let webSocketClients = [];
 WebSocketServer.on("connection", (ws) => {
   ws.on("message", function incoming(message, isBinary) {
     const msg = message.toString();
@@ -16,7 +17,16 @@ WebSocketServer.on("connection", (ws) => {
     //     client.send(message.toString());
     //   }
     // });
-    ws.send(msg);
+    const msgStr = msg.split("-");
+    if (msgStr[0] === "bot") {
+      webSocketClients.push({ ws, id: msgStr[1] });
+      ws.send("connected to server");
+    }
+  });
+
+  ws.on("close", () => {
+    webSocketClients = webSocketClients.filter((client) => client.ws !== ws);
+    console.log(webSocketClients);
   });
 });
 
