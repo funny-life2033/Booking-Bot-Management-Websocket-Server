@@ -39,7 +39,7 @@ WebSocketServer.on("connection", (ws) => {
   const closeHandle = () => {
     for (let key of Object.keys(botClients)) {
       if (botClients[key]["ws"] === ws) {
-        botClients[key]["app"].send("disconnect");
+        botClients[key]["app"]?.send("disconnect");
         delete botClients[key];
         break;
       } else if (botClients[key]["app"] === ws) {
