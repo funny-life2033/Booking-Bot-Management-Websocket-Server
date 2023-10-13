@@ -9,12 +9,14 @@ const WebSocketServer = new WebSocket.Server({ server });
 
 WebSocketServer.on("connection", (ws) => {
   ws.on("message", function incoming(message, isBinary) {
-    console.log(message.toString(), isBinary);
-    WebSocketServer.clients.forEach(function each(client) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message.toString());
-      }
-    });
+    const msg = message.toString();
+    console.log(msg, isBinary);
+    // WebSocketServer.clients.forEach(function each(client) {
+    //   if (client.readyState === WebSocket.OPEN) {
+    //     client.send(message.toString());
+    //   }
+    // });
+    ws.send(msg);
   });
 });
 
