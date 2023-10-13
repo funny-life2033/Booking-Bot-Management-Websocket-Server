@@ -16,7 +16,7 @@ WebSocketServer.on("connection", (ws) => {
     //     client.send(message.toString());
     //   }
     // });
-    const msgStr = msg.split("-");
+    const msgStr = msg.split("--");
     if (msgStr[0] === "bot" && !botClients[msgStr[1]]) {
       botClients[msgStr[1]] = { ws };
       console.log("increased to: ", botClients);
@@ -24,14 +24,14 @@ WebSocketServer.on("connection", (ws) => {
     } else if (msgStr[0] === "app") {
       if (botClients[msgStr[1]]) {
         if (botClients[msgStr[1]]["app"]) {
-          ws.send("failed-The device is already connected to other app");
+          ws.send("failed--The device is already connected to other app");
         } else {
           botClients[msgStr[1]]["app"] = ws;
           ws.send("success");
           botClients[msgStr[1]]["ws"].send("connecting");
         }
       } else {
-        ws.send("failed-The device doesn't exist");
+        ws.send("failed--The device doesn't exist");
       }
     }
   });
