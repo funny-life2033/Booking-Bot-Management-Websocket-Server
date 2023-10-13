@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const WebSocketServer = new WebSocket.Server({ server });
 
-let botClients = [];
+let botClients = {};
 WebSocketServer.on("connection", (ws) => {
   ws.on("message", function incoming(message, isBinary) {
     const msg = message.toString();
@@ -17,46 +17,26 @@ WebSocketServer.on("connection", (ws) => {
     //   }
     // });
     const msgStr = msg.split("-");
-    if (msgStr[0] === "bot") {
-      botClients.push({ ws, id: msgStr[1], requestingApps: [] });
+    if (msgStr[0] === "bot" && !botClients[msgStr[1]]) {
+      botClients[msgStr[1]] = { ws };
       console.log("increased to: ", botClients);
       ws.send("connected to server");
     } else if (msgStr[0] === "app") {
-      let bot = botClients.find((client) => client.id === msgStr[1]);
-      if (bot) {
-        const app = bot.requestingApps.find((app) => app.id === msgStr[1]);
-        if (app) {
-          ws.send("failed-You have already requested");
+      if (botClients[msgStr[1]]) {
+        if (botClients[msgStr[1]]["app"]) {
+          ws.send("failed-The device is already connected to other app");
         } else {
-          bot.requestingApps.push({ ws, id: msgStr[1] });
-          botClients = botClients.map((client) => {
-            if (client.id === msgStr[1]) {
-              client.ws.send(`connecting-${msgStr[1]}`);
-              return bot;
-            } else return client;
-          });
+          botClients[msgStr[1]]["app"] = ws;
+          ws.send("success");
+          botClients[msgStr[1]]["ws"].send("connecting");
         }
       } else {
-        ws.send("failed-This device doesn't exist");
+        ws.send("failed-The device doesn't exist");
       }
     }
   });
 
   const closeHandle = () => {
-    let newBotClients = [];
-    botClients.forEach((client) => {
-      if (client.ws !== ws) {
-        client.requestingApps = client.requestingApps.filter((app) => {
-          if (app.ws === ws) {
-            client.ws.send(`disconnecting-${app.id}`);
-            return false;
-          }
-          return true;
-        });
-        newBotClients.push(client);
-      }
-    });
-    botClients = newBotClients;
     console.log("reduced to: ", botClients);
   };
 
