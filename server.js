@@ -28,7 +28,7 @@ WebSocketServer.on("connection", (ws) => {
         } else {
           botClients[msgStr[1]]["app"] = ws;
           ws.send("success");
-          botClients[msgStr[1]]["ws"].send("connecting");
+          botClients[msgStr[1]]["ws"].send("connect");
         }
       } else {
         ws.send("failed--The device doesn't exist");
@@ -37,6 +37,17 @@ WebSocketServer.on("connection", (ws) => {
   });
 
   const closeHandle = () => {
+    for (let key of Object.keys(botClients)) {
+      if (botClients[key]["ws"] === ws) {
+        botClients[key]["app"].send("disconnect");
+        delete botClients[key];
+        break;
+      } else if (botClients[key]["app"] === ws) {
+        botClients[key]["app"] = null;
+        botClients[key]["ws"].send("disconnect");
+        break;
+      }
+    }
     console.log("reduced to: ", botClients);
   };
 
