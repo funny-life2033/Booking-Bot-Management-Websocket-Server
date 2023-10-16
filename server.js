@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const http = require("http");
 const WebSocket = require("ws");
+const cors = require("cors");
 
 const server = http.createServer(app);
 
@@ -9,6 +10,7 @@ const WebSocketServer = new WebSocket.Server({ server });
 
 let botClients = {};
 WebSocketServer.on("connection", (ws) => {
+  ws.send("connected to server");
   ws.on("message", function incoming(message, isBinary) {
     const msg = message.toString();
     // WebSocketServer.clients.forEach(function each(client) {
@@ -55,6 +57,13 @@ WebSocketServer.on("connection", (ws) => {
 
   ws.on("error", closeHandle);
 });
+
+app.use(
+  cors({
+    origin: "*",
+    optionsSuccessStatus: 200,
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
