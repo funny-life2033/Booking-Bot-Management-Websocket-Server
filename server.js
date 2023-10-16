@@ -10,7 +10,7 @@ const WebSocketServer = new WebSocket.Server({ server });
 
 let botClients = {};
 WebSocketServer.on("connection", (ws) => {
-  console.log("new connection from ", ws);
+  console.log("new connection from ", ws.url);
   ws.send("connected to server");
   ws.on("message", function incoming(message, isBinary) {
     const msg = message.toString();
