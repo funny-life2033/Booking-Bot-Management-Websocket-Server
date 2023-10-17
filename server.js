@@ -89,7 +89,17 @@ const io = new socketio.Server(server, {
   },
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      console.log(origin);
+      callback(null, true);
+    },
+    credentials: true,
+  })
+);
+
+let users = {};
 
 io.on("connection", (socket) => {
   const { id } = socket.client;
@@ -97,6 +107,180 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", (e) => {
     console.log("disconnected: ", e);
+  });
+
+  socket.on("app login", (user) => {
+    console.log(`user connected: ${user.username}`);
+
+    const sameUser = users[user.username];
+
+    if (!sameUser) {
+      socket.username = user.username;
+      users[user.username] = { app: socket };
+      socket.emit("user login success", user);
+    } else {
+      if (sameUser.app) {
+        socket.emit("user login failed", "The username is already existed");
+      } else if (sameUser.password !== user.password) {
+        socket.emit("user login failed", "Wrong Password");
+      } else {
+        socket.username = user.username;
+        users[user.username].app = socket;
+        socket.emit("user login success", user);
+        if (users[user.username].adiBot)
+          users[user.username].adiBot.emit("app connected", user);
+        if (users[user.username].studentBot)
+          users[user.username].studentBot.emit("app connected", user);
+      }
+    }
+  });
+
+  socket.on("adi bot login", (user) => {
+    console.log(`user connected: ${user.username}`);
+
+    const sameUser = users[user.username];
+
+    if (!sameUser) {
+      socket.username = user.username;
+      users[user.username] = { adiBot: socket };
+      socket.emit("user login success", user);
+    } else {
+      if (sameUser.adiBot) {
+        socket.emit("user login failed", "The username is already existed");
+      } else if (sameUser.password !== user.password) {
+        socket.emit("user login failed", "Wrong Password");
+      } else {
+        socket.username = user.username;
+        users[user.username].adiBot = socket;
+        socket.emit("user login success", user);
+        if (users[user.username].app)
+          users[user.username].app.emit("adi bot connected", user);
+      }
+    }
+  });
+
+  socket.on("student bot login", (user) => {
+    console.log(`user connected: ${user.username}`);
+
+    const sameUser = users[user.username];
+
+    if (!sameUser) {
+      socket.username = user.username;
+      users[user.username] = { studentBot: socket };
+      socket.emit("user login success", user);
+    } else {
+      if (sameUser.studentBot) {
+        socket.emit("user login failed", "The username is already existed");
+      } else if (sameUser.password !== user.password) {
+        socket.emit("user login failed", "Wrong Password");
+      } else {
+        socket.username = user.username;
+        users[user.username].studentBot = socket;
+        socket.emit("user login success", user);
+        if (users[user.username].app)
+          users[user.username].app.emit("student bot connected", user);
+      }
+    }
+  });
+
+  socket.on("adi bot start", () => {
+    if (users[socket.username].app === socket) {
+      if (users[socket.username].adiBot) {
+        users[socket.username].adiBot.emit("adi bot start");
+      }
+    }
+  });
+
+  socket.on("adi bot started", () => {
+    if (users[socket.username].adiBot === socket) {
+      if (users[socket.username].app) {
+        users[socket.username].app.emit('"adi bot started');
+      }
+    }
+  });
+
+  socket.on("adi bot stop", () => {
+    if (users[socket.username].app === socket) {
+      if (users[socket.username].adiBot) {
+        users[socket.username].adiBot.emit("adi bot stop");
+      }
+    }
+  });
+
+  socket.on("adi bot stopped", () => {
+    if (users[socket.username].adiBot === socket) {
+      if (users[socket.username].app) {
+        users[socket.username].app.emit('"adi bot stopped');
+      }
+    }
+  });
+
+  socket.on("adi accept slot", (slot) => {
+    if (users[socket.username].app === socket) {
+      if (users[socket.username].adiBot) {
+        users[socket.username].adiBot.emit("adi accept slot", slot);
+      }
+    }
+  });
+
+  socket.on("adi accepted slot", (slot) => {
+    if (users[socket.username].adiBot === socket) {
+      if (users[socket.username].bot) {
+        users[socket.username].bot.emit("adi accepted slot", slot);
+      }
+    }
+  });
+
+  socket.on("adi decline slot", (slot) => {
+    if (users[socket.username].app === socket) {
+      if (users[socket.username].adiBot) {
+        users[socket.username].adiBot.emit("adi decline slot", slot);
+      }
+    }
+  });
+
+  socket.on("adi declined slot", (slot) => {
+    if (users[socket.username].adiBot === socket) {
+      if (users[socket.username].bot) {
+        users[socket.username].bot.emit("adi declined slot", slot);
+      }
+    }
+  });
+
+  socket.on("reserved new slot", (slots) => {
+    if (users[socket.username].adiBot === socket) {
+      if (users[socket.username].bot) {
+        users[socket.username].bot.emit("reserved new slot", slots);
+      }
+    }
+  });
+
+  socket.on("disconnect", () => {
+    if (users[socket.username].app === socket) {
+      if (users[socket.username].adiBot || users[socket.username].studentBot) {
+        delete users[socket.username].app;
+        if (users[socket.username].adiBot)
+          users[socket.username].adiBot.emit("app disconnected");
+        if (users[socket.username].studentBot)
+          users[socket.username].studentBot.emit("app disconnected");
+      } else {
+        delete users[socket.username];
+      }
+    } else if (users[socket.username].adiBot === socket) {
+      if (users[socket.username].app) {
+        delete users[socket.username].adiBot;
+        users[socket.username].app.emit("adi bot disconnected");
+      } else {
+        delete users[socket.username];
+      }
+    } else if (users[socket.username].studentBot === socket) {
+      if (users[socket.username].app) {
+        delete users[socket.username].studentBot;
+        users[socket.username].app.emit("student bot disconnected");
+      } else {
+        delete users[socket.username];
+      }
+    }
   });
 });
 
