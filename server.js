@@ -73,3 +73,11 @@ app.get("/", (req, res) => {
 server.listen(5000, "0.0.0.0", () => {
   console.log("Listening to port 5000");
 });
+
+// const express = require("express");
+// const http = require("http");
+
+// const app = express();
+
+// const server=http.createServer(app)
+// const io=
