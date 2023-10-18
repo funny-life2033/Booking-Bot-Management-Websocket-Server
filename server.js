@@ -92,7 +92,7 @@ const io = new socketio.Server(server, {
 app.use(
   cors({
     origin: (origin, callback) => {
-      console.log(origin);
+      console.log("connecting request from: ", origin);
       callback(null, true);
     },
     credentials: true,
