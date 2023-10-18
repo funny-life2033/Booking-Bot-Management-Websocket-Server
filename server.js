@@ -88,8 +88,11 @@ const io = new socketio.Server(server, {
       console.log("socket connection requestion from: ", origin);
       callback(null, true);
     },
+    methods: ["GET", "POST"],
+    transports: ["websocket", "polling"],
     credentials: true,
   },
+  allowEIO3: true,
 });
 
 app.use(
