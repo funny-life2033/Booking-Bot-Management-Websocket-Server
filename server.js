@@ -84,7 +84,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new socketio.Server(server, {
   cors: {
-    origin: "*",
+    origin: (origin, callback) => {
+      console.log("socket connection requestion from: ", origin);
+      callback(null, true);
+    },
     credentials: true,
   },
 });
