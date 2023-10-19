@@ -261,33 +261,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    if (users[socket.username].app === socket) {
-      if (users[socket.username].adiBot || users[socket.username].studentBot) {
-        delete users[socket.username].app;
-        if (users[socket.username].adiBot)
-          users[socket.username].adiBot.emit("app disconnected");
-        if (users[socket.username].studentBot)
-          users[socket.username].studentBot.emit("app disconnected");
-      } else {
-        delete users[socket.username];
-      }
-    } else if (users[socket.username].adiBot === socket) {
-      if (users[socket.username].app) {
-        delete users[socket.username].adiBot;
-        users[socket.username].app.emit("adi bot disconnected");
-      } else {
-        delete users[socket.username];
-      }
-    } else if (users[socket.username].studentBot === socket) {
-      if (users[socket.username].app) {
-        delete users[socket.username].studentBot;
-        users[socket.username].app.emit("student bot disconnected");
-      } else {
-        delete users[socket.username];
-      }
-    }
-  });
+  socket.on("disconnect", () => {});
 });
 
 app.set("port", 5000);
