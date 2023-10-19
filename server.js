@@ -111,8 +111,6 @@ io.on("connection", (socket) => {
   const { id } = socket.client;
   console.log(`new client session: ${id}`);
 
-  socket.emit("connect", "your device is connected");
-
   socket.on("disconnect", (e) => {
     console.log("disconnected: ", e);
   });
