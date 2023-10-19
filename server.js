@@ -261,7 +261,9 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {});
+  socket.on("disconnect", () => {
+    console.log("disconnected: ", socket.id);
+  });
 });
 
 app.set("port", 5000);
