@@ -134,6 +134,6 @@ io.on("connection", (socket) => {
 app.set("port", 5000);
 
 // Start server
-app.listen(5000, () => {
+server.listen(5000, () => {
   console.log("listening on *:5000");
 });
