@@ -34,10 +34,11 @@ let studentBotClients = {};
 let appClient;
 
 io.on("connection", (socket) => {
-  const { id } = socket.client;
-  console.log(`new client session: ${id}`);
+  console.log("new connection request");
 
   socket.on("app connect", () => {
+    console.log("app connect request");
+
     if (appClient) {
       socket.emit("app connect failed", "The other app is already connected");
     } else {
@@ -62,6 +63,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("adi bot connect", (botId) => {
+    console.log("adi bot connect request");
+
     socket.botId = botId;
     adiBotClients[botId] = socket;
 
@@ -74,6 +77,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("student bot connect", (botId) => {
+    console.log("student bot connect request");
+
     socket.botId = botId;
     studentBotClients[botId] = socket;
 
