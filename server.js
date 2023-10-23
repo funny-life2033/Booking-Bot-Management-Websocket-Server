@@ -87,16 +87,16 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("message", (event, { to, data }) => {
+  socket.on("message", (event, data) => {
     console.log(event, data);
-    if (to) {
-      if (adiBotClients[to]) {
-        adiBotClients[to].emit(event, data);
-      } else if (studentBotClients[to]) {
-        studentBotClients[to].emit(event, data);
+    if (data.to) {
+      if (adiBotClients[data.to]) {
+        adiBotClients[data.to].emit(event, data);
+      } else if (studentBotClients[data.to]) {
+        studentBotClients[data.to].emit(event, data);
       }
     } else if (appClient) {
-      appClient.emit(event, data);
+      appClient.emit(event, { ...data, botId: socket.botId });
     }
   });
 
