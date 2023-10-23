@@ -68,8 +68,6 @@ io.on("connection", (socket) => {
       appClient.emit("adi bot connect", botId);
       socket.emit("app connect");
     }
-
-    console.log(adiBotClients);
   });
 
   socket.on("student bot connect", (botId) => {
