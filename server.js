@@ -9,7 +9,6 @@ const server = http.createServer(app);
 const io = new socketio.Server(server, {
   cors: {
     origin: (origin, callback) => {
-      console.log("socket connection requestion from: ", origin);
       callback(null, true);
     },
     methods: ["GET", "POST"],
@@ -22,7 +21,6 @@ const io = new socketio.Server(server, {
 app.use(
   cors({
     origin: (origin, callback) => {
-      console.log("connecting request from: ", origin);
       callback(null, true);
     },
     credentials: true,
@@ -34,8 +32,6 @@ let studentBotClients = {};
 let appClient;
 
 io.on("connection", (socket) => {
-  console.log("new connection request");
-
   socket.on("app connect", () => {
     console.log("app connect request");
 
@@ -129,10 +125,6 @@ io.on("connection", (socket) => {
         delete studentBotClients[socket.botId];
       }
     }
-
-    console.log("appClient", appClient);
-    console.log("adiBotClients", adiBotClients);
-    console.log("studentBotClients", studentBotClients);
   });
 });
 
