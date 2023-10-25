@@ -1,7 +1,12 @@
+require("dotenv").config();
 const express = require("express");
+const connectDB = require("./config/db");
 const http = require("http");
 const socketio = require("socket.io");
 const cors = require("cors");
+const bodyparser = require("body-parser");
+
+connectDB();
 
 const app = express();
 
@@ -17,6 +22,9 @@ const io = new socketio.Server(server, {
   },
   allowEIO3: true,
 });
+
+app.use(bodyparser.urlencoded({ extended: true }));
+app.use(bodyparser.json());
 
 app.use(
   cors({
@@ -127,6 +135,7 @@ io.on("connection", (socket) => {
 });
 
 app.get("/", (req, res) => {
+  console.log(req);
   res.json({ message: "success" });
 });
 
