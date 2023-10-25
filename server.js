@@ -126,6 +126,10 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get("/", (req, res) => {
+  res.json({ message: "success" });
+});
+
 app.set("port", 5000);
 
 // Start server
