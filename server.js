@@ -12,7 +12,7 @@ const io = new socketio.Server(server, {
       callback(null, true);
     },
     methods: ["GET", "POST"],
-    transports: ["websocket", "polling"],
+    // transports: ["websocket", "polling"],
     credentials: true,
   },
   allowEIO3: true,
