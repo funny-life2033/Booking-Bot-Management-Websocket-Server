@@ -135,7 +135,7 @@ io.on("connection", (socket) => {
 });
 
 app.get("/", (req, res) => {
-  console.log(req);
+  console.log("requested data: ", req.data);
   res.json({ message: "success" });
 });
 
