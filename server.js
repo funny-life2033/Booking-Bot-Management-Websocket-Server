@@ -54,31 +54,28 @@ io.on("connection", (socket) => {
       appClient = socket;
 
       let connectedAdiBots = Object.keys(adiBotClients);
-      let connectedStudentBots = Object.keys(studentBotClients);
       let connectedAdiBotUsers = Object.keys(adiBotUserClients);
-      let connectedStudentBotUsers = Object.keys(studentBotUserClients);
+      // let connectedStudentBots = Object.keys(studentBotClients);
+      // let connectedStudentBotUsers = Object.keys(studentBotUserClients);
 
       for (let connectedAdiBot of connectedAdiBots) {
         adiBotClients[connectedAdiBot].emit("app connect");
-      }
-
-      for (let connectedStudentBot of connectedStudentBots) {
-        studentBotClients[connectedStudentBot].emit("app connect");
       }
 
       for (let connectedAdiBotUser of connectedAdiBotUsers) {
         adiBotUserClients[connectedAdiBotUser].emit("app connect");
       }
 
-      for (let connectedStudentBotUser of connectedStudentBotUsers) {
-        studentBotUserClients[connectedStudentBotUser].emit("app connect");
-      }
+      // for (let connectedStudentBot of connectedStudentBots) {
+      //   studentBotClients[connectedStudentBot].emit("app connect");
+      // }
+
+      // for (let connectedStudentBotUser of connectedStudentBotUsers) {
+      //   studentBotUserClients[connectedStudentBotUser].emit("app connect");
+      // }
 
       socket.emit("app connect success", {
         connectedAdiBots,
-        connectedStudentBots,
-        connectedAdiBotUsers,
-        connectedStudentBotUsers,
       });
     }
   });
@@ -97,20 +94,18 @@ io.on("connection", (socket) => {
     if (adiBotClients[username]) {
       return socket.emit(
         "adi bot connect failed",
-        "The other bot is already connected"
+        "The other bot is already connected by the username"
       );
     }
 
     socket.username = username;
     adiBotClients[username] = socket;
 
+    socket.emit("adi bot connect success", username);
+
     if (appClient) {
       appClient.emit("adi bot connect", username);
       socket.emit("app connect");
-    }
-
-    if (adiBotUserClients[username]) {
-      adiBotUserClients[username].emit("adi bot connect");
     }
   });
 
@@ -133,11 +128,7 @@ io.on("connection", (socket) => {
 
           if (appClient) {
             appClient.emit("adi client connect", data.username);
-            socket.emit("adi client connect");
-          }
-
-          if (adiBotClients[data.username]) {
-            adiBotClients[data.username].emit("adi client connect");
+            socket.emit("app connect");
           }
         }
       });
@@ -158,26 +149,44 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("adi bot reserved slots", (data) => {
+    if (socket.username && adiBotClients[socket.username]) {
+      if (appClient) {
+        appClient.emit("adi bot reserved slots", data);
+      }
+
+      if (adiBotUserClients[socket.username]) {
+        adiBotUserClients[socket.username].emit("adi bot reserved slots", data);
+      }
+    }
+  });
+
+  socket.on("adi reserved new slot", (data) => {
+    if (socket.username && adiBotClients[socket.username]) {
+      if (appClient) {
+        appClient.emit("adi reserved new slot", data);
+      }
+
+      if (adiBotUserClients[socket.username]) {
+        adiBotUserClients[socket.username].emit("adi reserved new slot", data);
+      }
+    }
+  });
+
   socket.on("message", (event, data) => {
     console.log(event, data);
+
     if (data && data.to) {
       if (adiBotClients[data.to]) {
         adiBotClients[data.to].emit(event, data);
-      }
-
-      if (adiBotUserClients[data.to]) {
-        adiBotUserClients[data.to].emit(event, data);
+      } else {
+        socket.emit("failed", event, data);
       }
     } else {
-      if (appClient)
-        appClient.emit(event, { ...data, username: socket.username });
+      if (appClient) appClient.emit(event, data);
 
-      if (adiBotClients[socket.username] === socket) {
+      if (socket.username && adiBotUserClients[socket.username]) {
         adiBotUserClients[socket.username].emit(event, data);
-      }
-
-      if (adiBotUserClients[socket.username] === socket) {
-        adiBotClients[socket.username].emit(event, data);
       }
     }
   });
@@ -188,26 +197,26 @@ io.on("connection", (socket) => {
     if (appClient && appClient.client.id === socket.client.id) {
       appClient = null;
 
-      let connectedAdiBots = Object.keys(adiBotClients);
-      let connectedStudentBots = Object.keys(studentBotClients);
-      let connectedAdiBotUsers = Object.keys(adiBotUserClients);
-      let connectedStudentBotUsers = Object.keys(studentBotUserClients);
+      // let connectedAdiBots = Object.keys(adiBotClients);
+      // let connectedAdiBotUsers = Object.keys(adiBotUserClients);
+      // let connectedStudentBots = Object.keys(studentBotClients);
+      // let connectedStudentBotUsers = Object.keys(studentBotUserClients);
 
-      for (let connectedAdiBot of connectedAdiBots) {
-        adiBotClients[connectedAdiBot].emit("app disconnect");
-      }
+      // for (let connectedAdiBot of connectedAdiBots) {
+      //   adiBotClients[connectedAdiBot].emit("app disconnect");
+      // }
 
-      for (let connectedStudentBot of connectedStudentBots) {
-        studentBotClients[connectedStudentBot].emit("app disconnect");
-      }
+      // for (let connectedAdiBotUser of connectedAdiBotUsers) {
+      //   adiBotUserClients[connectedAdiBotUser].emit("app disconnect");
+      // }
 
-      for (let connectedAdiBotUser of connectedAdiBotUsers) {
-        adiBotUserClients[connectedAdiBotUser].emit("app disconnect");
-      }
+      // for (let connectedStudentBot of connectedStudentBots) {
+      //   studentBotClients[connectedStudentBot].emit("app disconnect");
+      // }
 
-      for (let connectedStudentBotUser of connectedStudentBotUsers) {
-        studentBotUserClients[connectedStudentBotUser].emit("app disconnect");
-      }
+      // for (let connectedStudentBotUser of connectedStudentBotUsers) {
+      //   studentBotUserClients[connectedStudentBotUser].emit("app disconnect");
+      // }
     } else if (socket.username) {
       if (
         adiBotClients[socket.username] &&
@@ -219,7 +228,7 @@ io.on("connection", (socket) => {
         delete adiBotClients[socket.username];
 
         if (adiBotUserClients[socket.username]) {
-          adiBotUserClients[socket.username].emit("adi bot disconnect");
+          adiBotUserClients[socket.username].emit("adi bot reserved slots", []);
         }
       } else if (
         adiBotUserClients[socket.username] &&
@@ -230,15 +239,6 @@ io.on("connection", (socket) => {
         }
 
         delete adiBotUserClients[socket.username];
-
-        if (adiBotClients[socket.username]) {
-          adiBotClients[socket.username].emit("adi client disconnect");
-        }
-      } else if (studentBotClients[socket.username]) {
-        if (appClient) {
-          appClient.emit("student bot disconnect", socket.username);
-        }
-        delete studentBotClients[socket.username];
       }
     }
   });
