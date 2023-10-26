@@ -7,18 +7,18 @@ const login = async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.json({ error: "All fields are required" });
+      return res.status(400).json({ error: "All fields are required" });
     }
 
     const client = await Client.findOne({ username });
 
     if (!client) {
-      return res.json({ error: "This username doesn't exist" });
+      return res.status(400).json({ error: "This username doesn't exist" });
     }
 
     const auth = await bcrypt.compare(password, user.password);
     if (!auth) {
-      return res.json({ error: "Incorrect password" });
+      return res.status(400).json({ error: "Incorrect password" });
     }
 
     const token = createSecretToken({ username });
