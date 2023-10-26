@@ -1,6 +1,7 @@
 const { createSecretToken } = require("../config/SecretToken");
 const Client = require("../models/adiClient");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
   try {
@@ -28,6 +29,23 @@ const login = async (req, res) => {
     console.log(error);
     res.status(500).json({ error: "Server error" });
   }
+};
+
+const clientVerification = (req, res) => {
+  const { token } = req.body;
+
+  jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
+    if (err) {
+      return res.status(400).json({ error: "Invalid token" });
+    }
+
+    const client = await Client.find({ username: data.username });
+    if (client) {
+      return res.json(client);
+    }
+
+    return res.status(400).json({ error: "Invalid token" });
+  });
 };
 
 const register = async (req, res) => {
@@ -62,4 +80,4 @@ const getClients = async (req, res) => {
   }
 };
 
-module.exports = { login, register, getClients };
+module.exports = { login, register, getClients, clientVerification };
