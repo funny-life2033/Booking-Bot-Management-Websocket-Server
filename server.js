@@ -54,7 +54,7 @@ io.on("connection", (socket) => {
       appClient = socket;
 
       let connectedAdiBots = Object.keys(adiBotClients);
-      let connectedAdiBotUsers = Object.keys(adiBotUserClients);
+      // let connectedAdiBotUsers = Object.keys(adiBotUserClients);
       // let connectedStudentBots = Object.keys(studentBotClients);
       // let connectedStudentBotUsers = Object.keys(studentBotUserClients);
 
@@ -62,9 +62,9 @@ io.on("connection", (socket) => {
         adiBotClients[connectedAdiBot].emit("app connect");
       }
 
-      for (let connectedAdiBotUser of connectedAdiBotUsers) {
-        adiBotUserClients[connectedAdiBotUser].emit("app connect");
-      }
+      // for (let connectedAdiBotUser of connectedAdiBotUsers) {
+      //   adiBotUserClients[connectedAdiBotUser].emit("app connect");
+      // }
 
       // for (let connectedStudentBot of connectedStudentBots) {
       //   studentBotClients[connectedStudentBot].emit("app connect");
@@ -152,7 +152,10 @@ io.on("connection", (socket) => {
   socket.on("adi bot reserved slots", (data) => {
     if (socket.username && adiBotClients[socket.username]) {
       if (appClient) {
-        appClient.emit("adi bot reserved slots", data);
+        appClient.emit("adi bot reserved slots", {
+          ...data,
+          username: socket.username,
+        });
       }
 
       if (adiBotUserClients[socket.username]) {
@@ -183,7 +186,8 @@ io.on("connection", (socket) => {
         socket.emit("failed", event, data);
       }
     } else {
-      if (appClient) appClient.emit(event, data);
+      if (appClient)
+        appClient.emit(event, { ...data, username: socket.username });
 
       if (socket.username && adiBotUserClients[socket.username]) {
         adiBotUserClients[socket.username].emit(event, data);
