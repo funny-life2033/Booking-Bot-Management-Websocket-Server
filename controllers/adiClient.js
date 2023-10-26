@@ -34,8 +34,6 @@ const register = async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    console.log(req.body);
-
     if (!username || !password || username === "" || password === "") {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -46,8 +44,6 @@ const register = async (req, res) => {
     }
 
     const client = await Client.create({ username, password });
-
-    console.log(client)
 
     res.json({ message: "success", client });
   } catch (error) {
