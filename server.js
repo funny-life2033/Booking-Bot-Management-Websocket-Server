@@ -41,7 +41,7 @@ app.use("/adiClient", adiClientRoute);
 let adiBotClients = {};
 let adiBotUserClients = {};
 let studentBotClients = {};
-let studentBotUserClients = {};
+// let studentBotUserClients = {};
 let appClient;
 
 io.on("connection", (socket) => {
@@ -125,6 +125,8 @@ io.on("connection", (socket) => {
           }
           socket.username = data.username;
           adiBotUserClients[data.username] = socket;
+
+          socket.emit("adi client connect success", data.username);
 
           if (appClient) {
             appClient.emit("adi client connect", data.username);
