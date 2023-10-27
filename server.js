@@ -126,7 +126,10 @@ io.on("connection", (socket) => {
           socket.username = data.username;
           adiBotUserClients[data.username] = socket;
 
-          socket.emit("adi client connect success", data.username);
+          socket.emit("adi client connect success", {
+            username: data.username,
+            token,
+          });
 
           if (appClient) {
             appClient.emit("adi client connect", data.username);
