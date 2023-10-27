@@ -130,7 +130,10 @@ io.on("connection", (socket) => {
 
           if (appClient) {
             appClient.emit("adi client connect", data.username);
-            socket.emit("app connect");
+          }
+
+          if (adiBotClients[data.username]) {
+            adiBotClients[data.username].emit("app connect");
           }
         }
       });
